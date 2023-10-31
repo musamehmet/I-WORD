@@ -1,0 +1,214 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block layout %}
+
+{% if errormessage %}
+<div class="alert alert-danger mt-4 mb-2">
+  {{ errormessage }}
+</div>
+{% endif %}
+
+{% if successmessage %}
+<div class="alert alert-info mt-4 mb-2">
+  {{ successmessage }}
+</div>
+{% endif %}
+
+
+
+<div class="container h-100"> <!--main-layout-block-start-->
+
+    <div class="row mt-4 align-items-center"> <!-- index row start -->
+
+      <div class="col-xxl-8 p-1">
+        <div class="bg-white rounded shadow-sm p-5">
+          <div class="row align-items-center">
+              <div class="col text-center">
+                <h2 class="index-welcome-text">Welcome <b>{{ user.username }}</b>! </h2>
+                <div><p class="fs-5">What's your word of today?</p>
+                <p class="fs-5">Don't be shy, just add new one!</p></div>
+                </div>
+              <div class="col">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <div class="row text-center">
+                        <h1 class="mb-2 index-add-text fw-bold">ADD</h1>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="row">
+                        <button type="button" class="addwordbutton shadow-sm mb-2 mt-2" data-toggle="modal" data-target="#addWordModal" id="wordButton">WORD</button>
+                        <button type="button" class="addsentencebutton shadow-sm mt-2" data-toggle="modal" data-target="#sentenceAddModal" id="sentenceButton">SENTENCE</button>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    
+                  <div class="col-xxl-4 text-center p-4">
+                    <div class="row mt-2">
+                      <div class="col mx-1 mb-2 rounded shadow-sm statics-word-today">
+                        <p class="fs-5">Words Today</p>
+                        <h1>{{ words_count_today }}</h1>
+                      </div>
+                      <div class="col mx-1 mb-2 rounded shadow-sm statics-sentences-today">
+                        <p class="fs-5">Sentences Today</p>
+                        <h1>{{ sentences_count_today }}</h1>
+                      </div>
+                    </div>
+                    <div class="row"> 
+                      <div class="col mx-1 mb-2 rounded shadow-sm statics-word-total">
+                        <p class="fs-5">Words Total</p>
+                        <h1>{{ words_count }}</h1>
+                      </div>
+                      <div class="col mx-1 mb-2 rounded shadow-sm statics-sentences-total">
+                        <p class="fs-5">Sentences Total</p>
+                        <h1>{{ sentences_count }}</h1>
+                      </div>
+                    </div>
+                  </div>
+
+    </div> <!-- index row end -->
+
+    <div class="row align-items-start"> <!-- latest row start -->
+
+      <div class="col-md-8 p-1">
+        <div class="bg-white rounded shadow-sm p-4 index-latest-sentences">
+        <h2>Latest Sentence</h2>
+        <ul>
+          {% for sentence in latest_sentences %}
+         <li><a class="latest-text" href="{% url 'sentence_detail' sentence.id %}">{{ sentence.sentence }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      </div>
+
+      <div class="col-md-4 p-1">
+        <div class="bg-white rounded shadow-sm p-4 index-latest-words">
+        <h2>Latest Words</h2>
+        <ul>
+          {% for word in latest_words %}
+          <li><a class="latest-text" href="{% url 'word_detail' word.id %}">{{ word.word }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      </div>
+
+    </div> <!-- latest row end -->
+
+</div> <!--main-layout-block-end-->
+
+
+<!-- Word Add Modal -->
+<div class="modal fade modal-md" id="addWordModal" tabindex="-1" role="dialog" aria-labelledby="addWordModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addWordModalLongTitle">Add Word</h5>
+          <i class="fa-solid fa-square-xmark fa-lg close" data-dismiss="modal" aria-label="Close" style="color: #c72323; cursor: pointer;"></i>        
+      </div>
+
+      <div class="modal-body">
+
+        {% if user.is_authenticated %}
+          <form action="{% url 'addword' user.id %}" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+            <label for="wordInput" class="addlabel">Word *</label>
+            <input class="form-control" type="text" placeholder="write a word" name="word" id="wordInput" maxlength="40" required>
+            </div>
+
+            <div class="form-group">
+              <label for="type" class="addlabel">Word type</label>
+              <select class="form-control" name="type" id="type">
+                  <option value="">Select a word type</option>                    
+                      <option value="1">Noun</option>
+                      <option value="2">Verb</option>
+                      <option value="3">Adjectives</option>
+                      <option value="4">Preverb</option>                    
+              </select>
+          </div>     
+          
+          <div class="form-group">
+          <label for="pronunciation" class="addlabel">Pronunciation of this word</label>
+          <input class="form-control" type="text" placeholder="write pronunciation of this word" name="pronunciation" id="pronunciation" maxlength="30">            
+        </div>  
+          
+          <div class="form-group">
+            <label for="prontype" class="addlabel">Pronunciation type</label>
+            <select class="form-control" name="prontype" id="prontype">
+                <option value="">Select a pronunciation type</option>
+               
+                    <option value="1">EN</option>
+                    <option value="2">US</option>
+            </select>
+        </div>       
+        <div class="form-group">
+            <label for="description" class="addlabel">Meaning of this word.</label>                 
+            <textarea class="form-control" type="textarea" placeholder="write meaning of this word" name="description" id="description" maxlength="100"></textarea>
+        </div>  
+            
+        
+        </div>
+        <!--modal body end -->
+        
+      <div class="modal-footer">
+        <input type="submit" class="savebutton rounded" value="Save">
+      </form> 
+      {% else %}
+      <div class="alert alert-danger">You must be logged in to add a word. <a href="{% url 'login' %}">Click here to login.</a></div>
+      {% endif %}  
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Word Add End -->
+
+<!-- Sentence Add Modal -->
+<div class="modal fade modal-md" id="sentenceAddModal" tabindex="-1" role="dialog" aria-labelledby="sentenceAddModalTitle" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="sentenceAddModalLongTitle">Add Sentence</h5>
+      <i class="fa-solid fa-square-xmark fa-lg close" data-dismiss="modal" aria-label="Close" style="color: #c72323; cursor: pointer;"></i>
+    </div>
+    <div class="modal-body">
+        <!--modal body-->
+        {% if user.is_authenticated %}
+        <form action="{% url 'addsentence' user.id %}" method="post">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="sentenceword" id="labelofsentenceword" class="addlabel">Select a <strong>Word*</strong></label>
+              <select class="form-control" name="sentenceword" id="sentenceword" required>
+                {% for word in words %}
+                <option value="{{ word.id }}">{{ word.word }}</option>
+                {% endfor %}
+              </select>
+          </div>
+       
+          <div class="form-group">
+            <label for="sentence" class="addlabel">Example</label>
+            <textarea class="form-control" type="textarea" placeholder="write a sentence" name="sentence" id="sentence" maxlength="100" required></textarea>
+          </div>
+
+      
+      <!--modal body end -->
+    </div>
+
+    <div class="modal-footer">
+      <input type="submit" class="savebutton rounded" value="Save">
+    </form>
+    {% else %}
+    <div class="alert alert-danger">You must be logged in to add a sentence. <a href="{% url 'login' %}">Click here to login.</a></div>
+    {% endif %}      
+    </div>
+  </div>
+</div>
+</div>
+<!-- Sentence Add Modal End -->
+
+{% endblock %}

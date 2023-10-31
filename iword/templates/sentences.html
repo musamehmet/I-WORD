@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block layout %}
+<div class="d-flex justify-content-between align-items-center">   
+    <h1 class="mt-4">Sentences</h1>   
+    <div class="dropdown">
+        <button class="btn bg-white dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Sentence Filter Selection
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="{% url 'all_sentences' %}">All Users Sentences</a>
+          {% if user.is_authenticated %}
+          <a class="dropdown-item" href="{% url 'following_sentences' %}">Following Users Sentences</a>
+          <a class="dropdown-item" href="{% url 'my_sentences' %}">My Sentences</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+<table class="table table-hover">
+    <thead>
+        <tr>
+        <th scope="col">Sentence</th>
+        <th scope="col">Word</th>
+        {% if user.is_authenticated %}
+        <th scope="col">User</th>
+        {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for sentence in sentences %}
+        <tr>
+            <td scope="col"><a href="{% url 'sentence_detail' sentence.id %}">{{ sentence.sentence }}</a></td>
+            <td scope="col"><a href="{% url 'word_detail' sentence.sentenceword.id %}">{{ sentence.sentenceword }}</a></td>
+            {% if user.is_authenticated %}
+            <td scope="col"><a href="{% url 'profile' sentence.user.id %}">{{ sentence.user.username }}</a></td>
+            {% endif %}
+      </tr>  
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if sentences.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ sentences.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current-page">
+            Page {{ sentences.number }}/{{ sentences.paginator.num_pages }}.
+        </span>
+
+        {% if sentences.has_next %}
+            <a href="?page={{ sentences.next_page_number }}">next</a>
+            <a href="?page={{ sentences.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+{% endblock %}

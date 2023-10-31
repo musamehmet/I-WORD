@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block layout %}
+
+<div class="container h-100 p-4"> <!--profile container start-->
+
+  <div class="row mt-2"> <!--profile head start-->
+    
+    <div class="row p-2 rounded shadow-sm bg-white text-center align-items-center"> <!--profile picture area start -->    
+
+        {% if user.profileURL %}
+        <div class="col-lg-2 justify-content-center text-center"><img class="rounded-circle shadow"  style="width:120px; height:120px;" src="{{ user.profileURL }}"></img></div>
+        {% endif %}
+
+        <div class="col-lg-8">
+            <div class="row  mt-2 mb-2">
+              {% if user.is_authenticated %}
+                <h2 class="index-welcome-text"><b>{{ user.username }}</b></h2>
+              {% endif %}        
+            </div>
+
+            <div class="row">    
+                  {% if user.is_authenticated %}
+                    {% if user.location %}
+                      <div class="latest-text"><i class="fa-solid fa-location-dot" style="color: #d6d6d6;"></i> {{ user.location }}</div>
+                    {% endif %}
+                  {% endif %}   
+                                
+                  {% if user.is_authenticated %}
+                    {% if user.birthday %}
+                      <div class="latest-text"><i class="fa-solid fa-calendar-days" style="color: #d6d6d6;"></i> {{ user.birthday }}</div>
+                    {% endif %}
+                  {% endif %}    
+
+                  {% if user.is_authenticated %}
+                    {% if user.birthday %}
+                      <div class="mb-2 latest-text">{{ user.biography }}</div>
+                      <div class="fs-5">Follower: <b>{{ followers.count }}</b> Following: <b>{{ following.count }}</b></div>
+                    {% endif %}
+                  {% endif %}  
+            </div>
+        </div>
+
+        <div class="col-lg-2">
+
+
+
+            {% if user.is_authenticated %}
+              {% if user == request.user %}
+              <button class="follow-btn followeditbutton" data-toggle="modal" data-target="#profileModal">Edit Profile</button>
+              {% else %}
+                {% if isFollowing %}
+                    <form action="{% url 'unfollow' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" class="follow-btn followeditbutton" name="userfollow" value="{{ user.id }}">
+                        <button type="submit" class="follow-btn followeditbutton">UnFollow</button>
+                    </form>
+                {% else %}
+                  <form action="{% url 'follow' %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" class="follow-btn followeditbutton" name="userfollow" value="{{ user.id }}">
+                      <button type="submit" class="follow-btn followeditbutton">Follow</button>
+                  </form>
+                {% endif %}
+              {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    
+    <div class="row text-center mt-2 p-4 align-items-center"> <!-- statics start -->
+
+      <div class="col-xs-12 col-md-3 col-lg-6 col-xl-6 col-xxl-2 p-2 leaderboardrank rounded shadow-sm order-1"><text class="staticstitle">Leaderboard Rank</text><text class="staticscontent">{{ rank }}</text></div>
+      <div class="col-xs-12 col-md-3 col-lg-6 col-xl-6 col-xxl-2 p-2 profilescore rounded shadow-sm order-2" id="profilescore" ><text class="staticstitle">Profilescore</text><text class="staticscontent">{{ profilescore }}</text></div>
+      <div class="col-xs-12 col-md-3 col-lg-6 col-xl-6 col-xxl-2 p-2 profilewordscore rounded shadow-sm order-2" id="wordscore" ><text class="staticstitle">Wordscore</text><text class="staticscontent">{{ user.wordscore }}</text></div>
+      <div class="col-xs-12 col-md-3 col-lg-6 col-xl-6 col-xxl-2 p-2 profilesentencescore rounded shadow-sm order-4 id="sentencescore" "><text class="staticstitle">Sentencescore</text><text class="staticscontent">{{ user.sentencescore }}</text></div>
+  
+    </div> <!-- statics end -->
+
+    <div class="row justify-content-center align-items-start"> <!-- latest row start -->
+
+      <div class="col-md-8 my-2">
+        <div class="bg-white rounded shadow-sm p-4 index-latest-sentences">
+        <h2>Latest Sentence</h2>
+        <ul>
+          {% for sentence in latest_sentences %}
+    <li><a class="latest-text"  href="{% url 'sentence_detail' sentence.id %}">{{ sentence.sentence }}</a></li>
+    {% endfor %}
+        </ul>
+      </div>
+      </div>
+  
+      <div class="col-md-4 my-2">
+        <div class="bg-white rounded shadow-sm p-4 index-latest-sentences">
+        <h2>Latest Words</h2>
+        <ul>
+          {% for word in latest_words %}
+            <li><a class="latest-text" href="{% url 'word_detail' word.id %}">{{ word.word }}</a></li>
+            {% endfor %}
+        </ul>
+      </div>
+      </div>
+  
+    </div> <!-- latest row end -->
+
+
+  </div> <!-- profile picture area end -->
+
+  
+
+
+
+
+</div> <!-- profile container end -->
+
+
+
+
+
+  
+
+
+
+
+
+
+
+ <!-- Edit Profile Modal -->
+ <div class="modal fade modal-lg" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Edit Profile</h5>
+          <i class="fa-solid fa-square-xmark fa-lg close" data-dismiss="modal" aria-label="Close" style="color: #c72323; cursor: pointer;"></i>
+        </div>
+        <div class="modal-body">
+            <!--modal body-->
+  
+            <form method="post" action="{% url 'updateprofile' request.user.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                <label for="biography" class="addlabel">Biography</label>
+                <textarea class="form-control" id="biography" name="biography">{{ user.biography }}</textarea>
+                </div>
+                <div class="form-group">
+                <label for="birthday" class="addlabel" >Birthday</label>
+                <input class="form-control" type="date" id="birthday" name="birthday" value="{{ user.birthday }}">
+                </div>
+
+                <div class="form-group">
+                <label for="profileURL" class="addlabel">Profile URL</label>
+                <input class="form-control" type="url" id="profileURL" name="profileURL" value="{{ user.profileURL }}">
+                </div>
+            
+                <div class="form-group">
+                <label for="location" class="addlabel">Location</label>
+                <input class="form-control" type="text" id="location" name="location" value="{{ user.location }}">
+                </div>         
+            
+  
+          <!--modal body end -->
+        </div>
+  
+        <div class="modal-footer">
+          <button type="submit" class="savebutton rounded">Update Profile</button>
+        </form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Profile Modal End -->
+
+{% endblock %}

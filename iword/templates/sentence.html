@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block layout %}
+
+<div class="sentencedetails rounded bg-white mt-4 p-4 mb-2">
+  <h2>Sentence Using <a href="{% url 'word_detail' sentence.sentenceword.id %}">{{ sentence.sentenceword }}</a></h2>
+  <hr/>
+  
+<div class="sentencesdetail-sentence p-2">{{ sentence.sentence }} 
+  
+</div>
+
+<hr/>
+
+<div class="modal-footer justify-content-between align-items-end">
+  {% if user.is_authenticated %}
+  <div class="addby"> <a href="{% url 'profile' sentence.user.id %}">
+  <img class="rounded-circle nav-profile-pic"  style="width:50px; height:50px;" src="{{ sentence.user.profileURL }}"></img>
+  added by {{ sentence.user.username }}</a></div>
+  {% endif %}
+{% if user.is_authenticated %}
+{% if word.user == request.user %}
+<button class="editbutton rounded mx-4 shadow-sm" data-toggle="modal" data-target="#editWordModal" id="editWordButton">Edit Word</button>
+{% endif %}
+<button class="makesentencebutton rounded shadow-sm" data-toggle="modal" data-target="#makeSentenceModal" id="makeSentenceButton">Make Sentence</button>
+{% endif %}
+</div>
+</div>
+
+{% if errormessage %}
+<div class="alert alert-danger">
+  {{ errormessage }}
+</div>
+{% endif %}
+
+{% if successmessage %}
+<div class="alert alert-info">
+  {{ successmessage }}
+</div>
+{% endif %}
+
+ <!-- Make Sentence Modal -->
+ <div class="modal fade modal-lg" id="makeSentenceModal" tabindex="-1" role="dialog" aria-labelledby="makeSentenceModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="makeSentenceModalLongTitle">Add Sentence</h5>
+        <i class="fa-solid fa-square-xmark fa-lg close" data-dismiss="modal" aria-label="Close" style="color: #c72323; cursor: pointer;"></i>
+      </div>
+
+        <!--modal body-->
+      <div class="modal-body">            
+          {% if user.is_authenticated %}
+          <form action="{% url 'addsentence' user.id %}" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+            <label class="addlabel" for="sentenceword" id="labelofsentenceword">Selected Word: </label>
+            <select class="form-control" name="sentenceword" id="sentenceword" required>                  
+            <option value="{{ sentence.sentenceword.id }}">{{ sentence.sentenceword }}</option>                  
+            </select>
+            </div>
+            
+            <div class="form-group">
+            <label class="addlabel" for="sentence">Example</label>
+            <textarea class="form-control" type="text" placeholder="write a sentence" name="sentence" id="sentence" maxlength="120" required></textarea>
+            </div>
+      </div>
+      <!--modal body end -->
+  
+      <div class="modal-footer">
+        <input type="submit" class="savebutton rounded shadow-sm" value="Save">
+      </form>            
+    {% else %}
+    <div class="alert alert-danger">You must be logged in to add a sentence. <a href="{% url 'login' %}">Click here to login.</a></div>
+    {% endif %}    
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- Make Sentence Modal End -->
+
+{% endblock %}

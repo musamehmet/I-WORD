@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block layout %}
+<h1 class="mt-4">Leaderboard</h1>
+<table class="table table-hover">
+    <thead>
+        <tr>
+        <th scope="col">Rank</th>
+        <th scope="col">Username</th>
+        <th scope="col">Word Score</th>
+        <th scope="col">Sentence Score</th>
+        <th scope="col">Profile Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in ranked_users %}
+        <tr>
+            <td scope="col">{{ user.rank }}</td>
+            <td scope="col"><a href="{% url 'profile' user.id %}"> {{ user.username }}</a></td>
+            <td scope="col">{{ user.wordscore }}</td>
+            <td scope="col">{{ user.sentencescore }}</td>
+            <td scope="col">{{ user.profilescore }}</td>
+        </tr>  
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if ranked_users.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ ranked_users.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current-page">
+            Page {{ ranked_users.number }}/{{ ranked_users.paginator.num_pages }}.
+        </span>
+
+        {% if ranked_users.has_next %}
+            <a href="?page={{ ranked_users.next_page_number }}">next</a>
+            <a href="?page={{ ranked_users.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+{% endblock %}
